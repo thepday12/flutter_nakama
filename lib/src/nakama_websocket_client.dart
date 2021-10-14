@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:nakama/api/api.pb.dart';
@@ -243,15 +244,16 @@ class NakamaWebsocketClient {
   Future<rtpb.ChannelJoin> joinChannel({
     required String? target,
     int? type,
-    bool? persistence,
-    bool? hidden,
+    bool persistence = false,
+    bool hidden = true,
   }) =>
       _send<rtpb.ChannelJoin>(rtpb.Envelope(
-          channelJoin: rtpb.ChannelJoin(
-              target: target,
-              type: type,
-              persistence: BoolValue.fromJson(persistence.toString()),
-              hidden: BoolValue.fromJson(hidden.toString()))));
+          channelJoin: rtpb.ChannelJoin.fromJson(jsonEncode({
+        'target': target,
+        'type': type,
+        'persistence': persistence,
+        'hidden': hidden
+      }))));
 
   Future<void> leaveMatch(String matchId) =>
       _send<void>(rtpb.Envelope(matchLeave: rtpb.MatchLeave(matchId: matchId)));
