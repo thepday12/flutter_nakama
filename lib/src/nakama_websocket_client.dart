@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:fixnum/fixnum.dart';
 import 'package:nakama/api/api.pb.dart';
@@ -168,6 +167,10 @@ class NakamaWebsocketClient {
           return waitingFuture.complete(receivedEnvelope.matchmakerTicket);
         } else if (waitingFuture is Completer<rtpb.Status>) {
           return waitingFuture.complete(receivedEnvelope.status);
+        } else if (waitingFuture is Completer<rtpb.Channel>) {
+          return waitingFuture.complete(receivedEnvelope.channel);
+        } else if (waitingFuture is Completer<rtpb.ChannelMessageAck>) {
+          return waitingFuture.complete(receivedEnvelope.channelMessageAck);
         } else {
           return waitingFuture.complete();
         }
@@ -241,19 +244,28 @@ class NakamaWebsocketClient {
       _send<rtpb.Match>(rtpb.Envelope(
           matchJoin: rtpb.MatchJoin(matchId: matchId, token: token)));
 
-  Future<rtpb.ChannelJoin> joinChannel({
+  Future<rtpb.Channel> joinChat({
     required String? target,
     int? type,
     bool persistence = false,
     bool hidden = true,
   }) =>
-      _send<rtpb.ChannelJoin>(rtpb.Envelope(
-          channelJoin: rtpb.ChannelJoin.fromJson(jsonEncode({
-        'target': target,
-        'type': type,
-        'persistence': persistence,
-        'hidden': hidden
-      }))));
+      _send<rtpb.Channel>(rtpb.Envelope(
+          channelJoin: rtpb.ChannelJoin(
+              target: target,
+              type: type,
+              persistence: BoolValue.create()..value = persistence,
+              hidden: BoolValue.create()..value = hidden)));
+
+  Future<rtpb.ChannelMessageAck> writeChatMessage({
+    required String? channelId,
+    required String? content,
+  }) =>
+      _send<rtpb.ChannelMessageAck>(rtpb.Envelope(
+          channelMessageSend: rtpb.ChannelMessageSend(
+        channelId: channelId,
+        content: content,
+      )));
 
   Future<void> leaveMatch(String matchId) =>
       _send<void>(rtpb.Envelope(matchLeave: rtpb.MatchLeave(matchId: matchId)));
