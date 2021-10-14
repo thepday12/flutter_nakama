@@ -243,15 +243,15 @@ class NakamaWebsocketClient {
   Future<rtpb.ChannelJoin> joinChannel({
     required String? target,
     int? type,
-    BoolValue? persistence,
-    BoolValue? hidden,
+    bool? persistence,
+    bool? hidden,
   }) =>
       _send<rtpb.ChannelJoin>(rtpb.Envelope(
           channelJoin: rtpb.ChannelJoin(
               target: target,
               type: type,
-              persistence: persistence,
-              hidden: hidden)));
+              persistence: BoolValue.fromJson(persistence.toString()),
+              hidden: BoolValue.fromJson(hidden.toString()))));
 
   Future<void> leaveMatch(String matchId) =>
       _send<void>(rtpb.Envelope(matchLeave: rtpb.MatchLeave(matchId: matchId)));
