@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:fixnum/fixnum.dart';
 import 'package:nakama/api/api.pb.dart';
 import 'package:nakama/api/google/protobuf/wrappers.pb.dart';
@@ -22,39 +23,53 @@ class NakamaWebsocketClient {
 
   final _onChannelPresenceController =
       StreamController<rtpb.ChannelPresenceEvent>.broadcast();
+
   Stream<rtpb.ChannelPresenceEvent> get onChannelPresence =>
       _onChannelPresenceController.stream;
 
   final _onMatchmakerMatchedController =
       StreamController<rtpb.MatchmakerMatched>.broadcast();
+
   Stream<rtpb.MatchmakerMatched> get onMatchmakerMatched =>
       _onMatchmakerMatchedController.stream;
 
   final _onMatchDataController = StreamController<rtpb.MatchData>.broadcast();
+
   Stream<rtpb.MatchData> get onMatchData => _onMatchDataController.stream;
 
   final _onMatchPresenceController =
       StreamController<rtpb.MatchPresenceEvent>.broadcast();
+
   Stream<rtpb.MatchPresenceEvent> get onMatchPresence =>
       _onMatchPresenceController.stream;
 
   final _onNotificationsController =
       StreamController<rtpb.Notifications>.broadcast();
+
   Stream<rtpb.Notifications> get onNotifications =>
       _onNotificationsController.stream;
 
   final _onStatusPresenceController =
       StreamController<rtpb.StatusPresenceEvent>.broadcast();
+
   Stream<rtpb.StatusPresenceEvent> get onStatusPresence =>
       _onStatusPresenceController.stream;
 
   final _onStreamPresenceController =
       StreamController<rtpb.StreamPresenceEvent>.broadcast();
+
   Stream<rtpb.StreamPresenceEvent> get onStreamPresence =>
       _onStreamPresenceController.stream;
 
   final _onStreamDataController = StreamController<rtpb.StreamData>.broadcast();
+
   Stream<rtpb.StreamData> get onStreamData => _onStreamDataController.stream;
+
+  final _onChannelMessageController =
+      StreamController<ChannelMessage>.broadcast();
+
+  Stream<ChannelMessage> get onChannelMessage =>
+      _onChannelMessageController.stream;
 
   final List<Completer> _futures = [];
 
@@ -132,6 +147,7 @@ class NakamaWebsocketClient {
       _onStatusPresenceController.close(),
       _onStreamPresenceController.close(),
       _onStreamDataController.close(),
+      _onChannelMessageController.close(),
       _channel.sink.close(),
     ]);
   }
@@ -184,6 +200,11 @@ class NakamaWebsocketClient {
             );
           case rtpb.Envelope_Message.streamData:
             return _onStreamDataController.add(receivedEnvelope.streamData);
+
+          case rtpb.Envelope_Message.channelMessage:
+            return _onChannelMessageController
+                .add(receivedEnvelope.channelMessage);
+
           default:
             return print('Not implemented');
         }
@@ -218,6 +239,19 @@ class NakamaWebsocketClient {
   }) =>
       _send<rtpb.Match>(rtpb.Envelope(
           matchJoin: rtpb.MatchJoin(matchId: matchId, token: token)));
+
+  Future<rtpb.ChannelJoin> joinChannel({
+    required String? target,
+    int? type,
+    BoolValue? persistence,
+    BoolValue? hidden,
+  }) =>
+      _send<rtpb.ChannelJoin>(rtpb.Envelope(
+          channelJoin: rtpb.ChannelJoin(
+              target: target,
+              type: type,
+              persistence: persistence,
+              hidden: hidden)));
 
   Future<void> leaveMatch(String matchId) =>
       _send<void>(rtpb.Envelope(matchLeave: rtpb.MatchLeave(matchId: matchId)));
