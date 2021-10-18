@@ -267,6 +267,9 @@ class NakamaWebsocketClient {
         content: content,
       )));
 
+  Future<void> leaveChat(String channelId) => _send<void>(
+      rtpb.Envelope(channelLeave: rtpb.ChannelLeave(channelId: channelId)));
+
   Future<void> leaveMatch(String matchId) =>
       _send<void>(rtpb.Envelope(matchLeave: rtpb.MatchLeave(matchId: matchId)));
 
