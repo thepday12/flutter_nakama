@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:grpc/grpc.dart';
 import 'package:grpc/grpc_connection_interface.dart';
 import 'package:nakama/api/api.pb.dart';
 import 'package:nakama/api/apigrpc.pbgrpc.dart';
-import 'package:grpc/grpc.dart';
 import 'package:nakama/api/google/protobuf/empty.pb.dart';
 import 'package:nakama/api/google/protobuf/wrappers.pbserver.dart';
 import 'package:nakama/nakama.dart';
@@ -278,6 +278,34 @@ class NakamaGrpcClient extends NakamaBaseClient {
       options: _getSessionCallOptions(session),
     );
   }
+
+  @override
+  Future<ChannelMessageList> listChannelMessages(
+      {required model.Session session,
+      String? channelId,
+      String? cursor,
+      bool? forward,
+      int? limit}) {
+    return _client.listChannelMessages(
+      ListChannelMessagesRequest(
+        channelId: channelId,
+        limit: _getInt32Value(limit),
+        forward: _getBoolValue(forward),
+        cursor: cursor,
+      ),
+      options: _getSessionCallOptions(session),
+    );
+  }
+}
+
+Int32Value? _getInt32Value(int? value) {
+  if (value != null) return Int32Value.create()..value = value;
+  return null;
+}
+
+BoolValue? _getBoolValue(bool? value) {
+  if (value != null) return BoolValue.create()..value = value;
+  return null;
 }
 
 NakamaBaseClient getNakamaClient({

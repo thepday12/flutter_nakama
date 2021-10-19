@@ -68,4 +68,11 @@ abstract class NakamaBaseClient {
   });
 
   Future<Account> getAccount(model.Session session);
+
+  Future<ChannelMessageList> listChannelMessages(
+      {required model.Session session,
+      String? channelId,
+      String? cursor,
+      bool? forward,
+      int? limit});
 }
