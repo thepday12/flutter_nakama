@@ -312,6 +312,7 @@ class NakamaRestApiClient extends NakamaBaseClient {
       String? cursor,
       bool? forward,
       int? limit}) async {
+    _session = session;
     final res = await _api.nakamaListChannelMessages(
         channelId: channelId, cursor: cursor, forward: forward, limit: limit);
 
