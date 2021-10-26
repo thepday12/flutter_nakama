@@ -93,9 +93,10 @@ class NakamaWebsocketClient {
     int port = 7350,
     required bool ssl,
     required String token,
+    bool override = false,
   }) {
     // Has the client already been initialized? Then return it.
-    if (_clients.containsKey(key)) {
+    if (!override && _clients.containsKey(key)) {
       return instanceFor(key: key);
     }
 
